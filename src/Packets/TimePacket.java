@@ -28,8 +28,9 @@ public class TimePacket implements Packet {
 		}
 	}
 	
-	public TimePacket(TimePacketType type, int clientid, int requestid, long offset) {
+	public TimePacket(TimePacketType type, int requestid, long offset) {
 		_type = type;
+		System.out.println("Sendng correction.");
 		if(type == TimePacketType.TimeCorrection) {
 			_packetString = "TIME_CORRECTION " + requestid + " " +offset;
 		}
