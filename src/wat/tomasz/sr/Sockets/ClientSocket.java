@@ -95,8 +95,12 @@ public class ClientSocket extends Socket {
 			System.out.println("Received election request.");
 			if(_state == ClientState.ServerNotResponding) {
 				System.out.println("Server is not responding so answering");
-				_state = ClientState.ElectionProcess;
+				_state = ClientState.ElectionStarted;
 				sendData(new ElectionPacket(ElectionPacketType.ElectionResponse, from, _id), receiver, port);
+				
+				//Sending broadcast to other with higher ID
+				setTimeout(1f);
+				attemptToBeMaster();
 			}
 			else {
 				System.out.println("Server is ok. Not responding.");
@@ -113,6 +117,15 @@ public class ClientSocket extends Socket {
 			if(client != null) {
 				client.setElectionResponsed(true);
 			}
+		}
+		else if( (args = PacketParser.parseElectionMaster(message)) != null ) {
+			int id = Integer.parseInt(args[1]);
+			int from = Integer.parseInt(args[2]);
+			
+			if(id != _id)
+				return;
+
+			System.out.println("Received taking over master by id=" + from);
 		}
 	}
 
@@ -151,13 +164,12 @@ public class ClientSocket extends Socket {
 				System.out.println("No other clients are connected. Stoping process...");
 				_manager.getGUI().startClientBtn.getActionListeners()[0].actionPerformed(null);
 			}
-		}
-		else if(_state == ClientState.ElectionStarted) {
-			_state = ClientState.ElectionProcess;
+			
 			setTimeout(1f);
 			broadcastElectionRequest();
+			
 		}
-		else if(_state == ClientState.ElectionProcess) {
+		else if(_state == ClientState.ElectionStarted) {
 			int received = 0;
 			for(int id : _manager.getClientManager().getClientsID()) {
 				Client client = _manager.getClientManager().getClient(id);
@@ -166,8 +178,7 @@ public class ClientSocket extends Socket {
 				}
 			}
 			if(received == 0) {
-				System.out.println("No response from other devices. Closing...");
-				_manager.getGUI().startClientBtn.getActionListeners()[0].actionPerformed(null);
+				attemptToBeMaster();
 			}	
 			else {
 				System.out.println("Received " + received + " responses.");
@@ -175,15 +186,42 @@ public class ClientSocket extends Socket {
 		}
 	}
 	
+	public void attemptToBeMaster() {
+		if(broadcastElectionRequest() == 0) {
+			if(_manager.getClientManager().getClientsID().length > 0) {
+				broadcastElectionMaster();
+			}
+			else {
+				System.out.println("No other clients are connected. Stoping process...");
+				_manager.getGUI().startClientBtn.getActionListeners()[0].actionPerformed(null);
+			}
+		}
+	}
+	
 	//Leader election
-	public void broadcastElectionRequest() {
+	public int broadcastElectionRequest() {
+		int count = 0;
 		for(int id : _manager.getClientManager().getClientsID()) {
-			if(id < _id)
-				continue;
-			
+			if(id > _id) {
+				Client client = _manager.getClientManager().getClient(id);
+				System.out.println("Sending election request to id=" + id + " ip=" + client.getIP().getHostAddress());
+				sendData(new ElectionPacket(ElectionPacketType.ElectionRequest, id, _id), 
+						client.getIP(), client.getPort());
+				
+				count++;
+			}
+		}
+		return count;
+ 	}
+	
+	
+	public void broadcastElectionMaster() {
+		for(int id : _manager.getClientManager().getClientsID()) {
 			Client client = _manager.getClientManager().getClient(id);
-			sendData(new ElectionPacket(ElectionPacketType.ElectionRequest, id, _id), 
+			System.out.println("Sending election master to id=" + id + " ip=" + client.getIP().getHostAddress());
+			sendData(new ElectionPacket(ElectionPacketType.SetMaster, id, _id), 
 					client.getIP(), client.getPort());
 		}
+		//Switching to master here
  	}
 }

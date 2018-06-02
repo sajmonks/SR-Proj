@@ -49,7 +49,7 @@ public abstract class Socket {
 		while(_socket != null && !_socket.isClosed()) {
 			DatagramPacket receivePacket = new DatagramPacket(reciveData, reciveData.length);
 			try {
-				System.out.println("Waiting for packet.");
+				//System.out.println("Waiting for packet.");
 				_socket.receive(receivePacket);
 			} 
 			catch (SocketTimeoutException e) {
@@ -61,10 +61,10 @@ public abstract class Socket {
 				continue;
 			}
 			
-			System.out.println("End of waiting.");
+			//System.out.println("End of waiting.");
 			if(receivePacket != null) {
 				if(receivePacket.getData() != null && receivePacket.getLength() > 0) {
-					System.out.println("Packet received. Size " + receivePacket.getLength() + " bytes");
+					//System.out.println("Packet received. Size " + receivePacket.getLength() + " bytes");
 		
 					onReceiveData( dataToString(receivePacket.getData(), receivePacket.getLength()), 
 							receivePacket.getAddress(), receivePacket.getPort());
