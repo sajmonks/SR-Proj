@@ -41,6 +41,7 @@ public class ServerSocket extends Socket {
 			long time = Long.parseLong(args[3]);
 			long diff = Calendar.getInstance().getTimeInMillis() - time;
 			System.out.println("Time difference in client " + clientid + " is "  + diff);
+			
 		}
 	}
 

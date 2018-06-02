@@ -36,6 +36,18 @@ public class PacketParser {
 		return null;
 	}
 	
+	public static String [] parseTimeCorrection(String message) {
+		String [] split = message.split(" ");
+		if(split.length == 4) {
+			if(split[0].equals("TIME_CORRECTION")) { 
+				if( isInt(split[1]) )
+						if( isLong(split[2]))
+						return split;
+			}
+		}
+		return null;
+	}
+	
 	private static boolean isInt(String str) {
 		try {
 			int d = Integer.parseInt(str);

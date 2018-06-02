@@ -18,25 +18,20 @@ public class TimePacket implements Packet {
 		if(type == TimePacketType.TimeRequest) {
 			_packetString = "TIME_REQUEST " + requestid;
 		}
-		else if(type == TimePacketType.TimeResponse) {
-			_packetString = "TIME_RESPONSE " + requestid;
-		}
-		else if(type == TimePacketType.TimeCorrection) {
-			_packetString = "TIME_CORRECTION " + requestid;
-		}
 	}
 	
 	
 	public TimePacket(TimePacketType type, int clientid, int requestid) {
 		_type = type;
-		if(type == TimePacketType.TimeRequest) {
-			_packetString = "TIME_REQUEST " + clientid;
-		}
-		else if(type == TimePacketType.TimeResponse) {
+		if(type == TimePacketType.TimeResponse) {
 			_packetString = "TIME_RESPONSE " + clientid + " " + requestid;
 		}
-		else if(type == TimePacketType.TimeCorrection) {
-			_packetString = "TIME_CORRECTION " + requestid;
+	}
+	
+	public TimePacket(TimePacketType type, int clientid, int requestid, long offset) {
+		_type = type;
+		if(type == TimePacketType.TimeCorrection) {
+			_packetString = "TIME_CORRECTION " + requestid + " " +offset;
 		}
 	}
 	

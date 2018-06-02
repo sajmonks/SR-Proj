@@ -48,6 +48,11 @@ public class ClientSocket extends Socket {
 			int reqid = Integer.parseInt(args[1]);
 			this.sendData(new TimePacket(TimePacketType.TimeResponse, _manager.getMyID(), reqid), receiver, port);
 		}
+		else if( (args = PacketParser.parseTimeCorrection(message)) != null ) {
+			//int reqid = Integer.parseInt(args[1]);
+			long diff = Long.parseLong(args[2]);
+			System.out.println("Received time correction offset=" + diff);
+		}
 	}
 
 	@Override
