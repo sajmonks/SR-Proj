@@ -79,8 +79,6 @@ public class ClientSocket extends Socket {
 			catch (UnknownHostException e) { e.printStackTrace(); }
 			int clientport = Integer.parseInt(args[3]);
 			
-			if(_id == id)
-				return;
 			
 			_manager.getClientManager().putClient(id, new Client(ip, clientport));
 			System.out.println("New client joined id=" + id + " ip="+ip.getHostAddress());
