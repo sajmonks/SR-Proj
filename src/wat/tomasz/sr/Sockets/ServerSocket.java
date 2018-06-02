@@ -7,6 +7,7 @@ import java.util.Calendar;
 
 import Clients.Client;
 import Packets.InvitationPacket;
+import Packets.NewClientPacket;
 import Packets.PacketParser;
 import Packets.TimePacket;
 import Packets.TimePacket.TimePacketType;
@@ -58,6 +59,8 @@ public class ServerSocket extends Socket {
 	@Override
 	public void onTimeout() {	
 		sendTimeRequests();
+		broadcastNewClients();
+		
 	}
 	
 	public void sendTimeRequests() {
@@ -68,5 +71,21 @@ public class ServerSocket extends Socket {
 					client.getIP(), client.getPort());
 		}
 	}
+	
+	public void broadcastNewClients() {
+		for(int id : _manager.getClientManager().getClientsID()) {
+			Client client = _manager.getClientManager().getClient(id);
+			if(!client.isAnnounced()) {
+				for(int sid : _manager.getClientManager().getClientsID()) {
+					Client receiver = _manager.getClientManager().getClient(sid);
+					sendData(new NewClientPacket(id, client.getIP(), client.getPort()), 
+							receiver.getIP(), receiver.getPort() );
+					
+					client.setAnnounced(true);
+				}
+			}
+		}
+	}
+	
 
 }

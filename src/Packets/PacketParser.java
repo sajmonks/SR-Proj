@@ -1,5 +1,8 @@
 package Packets;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 public class PacketParser {
 	public static String [] parseInvitationAccept (String message) {
 		String [] split = message.split(" ");
@@ -43,6 +46,30 @@ public class PacketParser {
 				if( isInt(split[1]) )
 						if( isLong(split[2]))
 						return split;
+			}
+		}
+		return null;
+	}
+	
+	public static String [] parseNewClient(String message) {
+		String [] split = message.split(" ");
+		if(split.length == 4) {
+			if(split[0].equals("NEW_CLIENT")) { 
+				if( isInt(split[1]) )
+				{
+					boolean thrown = false;
+					try {
+						InetAddress.getByName(split[2]);
+					}
+					catch(UnknownHostException e) {
+						thrown = true;
+					}
+					
+					if(thrown == false)
+						if( isInt(split[3]))
+							return split;
+					
+				}
 			}
 		}
 		return null;

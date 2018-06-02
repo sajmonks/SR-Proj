@@ -5,6 +5,7 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
+import Clients.Client;
 import Packets.InvitationPacket;
 import Packets.InvitationPacket.InvitationType;
 import Packets.PacketParser;
@@ -12,6 +13,12 @@ import Packets.TimePacket;
 import Packets.TimePacket.TimePacketType;
 
 public class ClientSocket extends Socket {
+	
+	private enum ClientState { Starting, Working, ServerNotResponding, ElectionProcess };
+	private ClientState _state = ClientState.Starting;
+	private int _id;
+	
+	private int _attemptsLeft = 0;
 	
 	public ClientSocket(SocketManager manager, String serverip, int port) {
 		super(manager);
@@ -36,22 +43,41 @@ public class ClientSocket extends Socket {
 	public void onReceiveData(String message, InetAddress receiver, int port) {
 		String [] args = null;
 		if( (args = PacketParser.parseInvitationAccept(message)) != null ) {
-			System.out.println("Odebrano akceptacje");
+			_state = ClientState.Working;
+			
 			int id = Integer.parseInt(args[1]); //No exception 100%
-			_manager.setMyID(id);
-			System.out.println("My id is: " + id);
+			_id = id;
+			
+			//Setting gui button
 			_manager.getGUI().startClientBtn.setEnabled(true);
-			setTimeout(0);
+			
+			System.out.println("Accept received id=" + _id);
 		}
 		else if( (args = PacketParser.parseTimeRequest(message)) != null ) {
+			_state = ClientState.Working;
+			
 			System.out.println("Received time request");
 			int reqid = Integer.parseInt(args[1]);
-			this.sendData(new TimePacket(TimePacketType.TimeResponse, _manager.getMyID(), reqid), receiver, port);
+			this.sendData(new TimePacket(TimePacketType.TimeResponse, _id, reqid), receiver, port);
 		}
 		else if( (args = PacketParser.parseTimeCorrection(message)) != null ) {
 			//int reqid = Integer.parseInt(args[1]);
 			long diff = Long.parseLong(args[2]);
 			System.out.println("Received time correction offset=" + diff);
+		}
+		else if( (args = PacketParser.parseNewClient(message)) != null ) {
+			//int reqid = Integer.parseInt(args[1]);
+			int id = Integer.parseInt(args[1]);
+			InetAddress ip = null;
+			try { ip = InetAddress.getByName(args[2]); } 
+			catch (UnknownHostException e) { e.printStackTrace(); }
+			int clientport = Integer.parseInt(args[3]);
+			
+			if(id != _id) {
+				_manager.getClientManager().putClient(id, new Client(ip, clientport));
+				System.out.println("New client joined id=" + id + " ip="+ip.getHostAddress());
+			}
+			
 		}
 	}
 
@@ -69,9 +95,30 @@ public class ClientSocket extends Socket {
 
 	@Override
 	public void onTimeout() {
-		_manager.getGUI().showMessage("Nie uzyskano odpowiedzi od serwera");
-		_manager.getGUI().startClientBtn.getActionListeners()[0].actionPerformed(null);
+		if(_state == ClientState.Starting) {
+			_manager.getGUI().showMessage("Nie uzyskano odpowiedzi od serwera");
+			_manager.getGUI().startClientBtn.getActionListeners()[0].actionPerformed(null);
+		} 
+		else if(_state == ClientState.Working) {
+			_state = ClientState.ServerNotResponding;
+			_attemptsLeft = _id + 1;
+			System.out.println("Server is not responding, reconnecting for " + _attemptsLeft + " times.");
+		}
+		else if(_state == ClientState.ServerNotResponding && _attemptsLeft > 0) {
+			_attemptsLeft--;
+			System.out.println(_attemptsLeft + " attempts left.");
+		}
+		else if(_state == ClientState.ServerNotResponding && _attemptsLeft <= 0){
+			_state = ClientState.ElectionProcess;
+			System.out.println("Starting election process...");
+			
+			if(_manager.getClientManager().getClientsID().length == 0) {
+				System.out.println("No other clients are connected. Stoping process...");
+				_manager.getGUI().startClientBtn.getActionListeners()[0].actionPerformed(null);
+			}
+		}
+		else if(_state == ClientState.ElectionProcess) {
+			
+		}
 	}
-
-
 }
