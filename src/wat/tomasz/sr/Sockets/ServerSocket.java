@@ -42,7 +42,7 @@ public class ServerSocket extends Socket {
 			long time = Long.parseLong(args[3]);
 			long diff = Calendar.getInstance().getTimeInMillis() - time;
 			System.out.println("Time difference in client " + clientid + " is "  + diff);
-			sendData(new TimePacket(TimePacketType.TimeCorrection, requestid, diff), receiver, port);
+			sendData(new TimePacket(TimePacketType.TimeCorrection, clientid, requestid, diff), receiver, port);
 		}
 	}
 
@@ -67,7 +67,7 @@ public class ServerSocket extends Socket {
 		for(int id : _manager.getClientManager().getClientsID()) {
 			Client client = _manager.getClientManager().getClient(id);
 			System.out.println("Sending request to client " + id) ;
-			this.sendData(new TimePacket(client, TimePacketType.TimeRequest, lastRequest++), 
+			this.sendData(new TimePacket(client, TimePacketType.TimeRequest, id, lastRequest++), 
 					client.getIP(), client.getPort());
 		}
 	}

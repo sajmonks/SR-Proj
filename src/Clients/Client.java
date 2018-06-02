@@ -8,6 +8,7 @@ public class Client {
 	private double _lastOffset = 0;
 	private long _lastTimeRequest = 0;
 	private boolean _isAnnounced = false;
+	private boolean _electionResponsed = false;
 	
 	public Client(InetAddress ip, int port) {
 		_ip = ip;
@@ -47,5 +48,13 @@ public class Client {
 
 	public void setAnnounced(boolean _isAnnounced) {
 		this._isAnnounced = _isAnnounced;
+	}
+
+	public boolean isElectionResponsed() {
+		return _electionResponsed;
+	}
+
+	public void setElectionResponsed(boolean _electioResponsed) {
+		this._electionResponsed = _electioResponsed;
 	}
 }

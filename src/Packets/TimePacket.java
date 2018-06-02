@@ -12,27 +12,28 @@ public class TimePacket implements Packet {
 	private TimePacketType _type;
 	private Client _client;
 	
-	public TimePacket(Client client, TimePacketType type, int requestid) {
+	public TimePacket(Client client, TimePacketType type,  int targetid, int requestid) {
 		_type = type;
 		_client = client;
+		
 		if(type == TimePacketType.TimeRequest) {
-			_packetString = "TIME_REQUEST " + requestid;
+			_packetString = "TIME_REQUEST " + targetid + " " +requestid;
 		}
 	}
 	
-	
-	public TimePacket(TimePacketType type, int clientid, int requestid) {
+	public TimePacket(TimePacketType type,  int targetid, int requestid) {
 		_type = type;
+		
 		if(type == TimePacketType.TimeResponse) {
-			_packetString = "TIME_RESPONSE " + clientid + " " + requestid;
+			_packetString = "TIME_RESPONSE " + targetid + " " + requestid;
 		}
 	}
 	
-	public TimePacket(TimePacketType type, int requestid, long offset) {
+	public TimePacket(TimePacketType type, int targetid, int requestid, long offset) {
 		_type = type;
 		System.out.println("Sendng correction.");
 		if(type == TimePacketType.TimeCorrection) {
-			_packetString = "TIME_CORRECTION " + requestid + " " +offset;
+			_packetString = "TIME_CORRECTION " + targetid + " " + requestid + " " +offset;
 		}
 	}
 	

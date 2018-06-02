@@ -17,10 +17,11 @@ public class PacketParser {
 	
 	public static String [] parseTimeRequest(String message) {
 		String [] split = message.split(" ");
-		if(split.length == 2) {
+		if(split.length == 3) {
 			if(split[0].equals("TIME_REQUEST")) { 
 				if( isInt(split[1]) )
-					return split;
+					if( isInt(split[2]) )
+						return split;
 			}
 		}
 		return null;
@@ -41,11 +42,12 @@ public class PacketParser {
 	
 	public static String [] parseTimeCorrection(String message) {
 		String [] split = message.split(" ");
-		if(split.length == 3) {
+		if(split.length == 4) {
 			if(split[0].equals("TIME_CORRECTION")) { 
 				if( isInt(split[1]) )
-						if( isLong(split[2]))
-						return split;
+					if( isInt(split[2]) )
+						if( isLong(split[3]))
+							return split;
 			}
 		}
 		return null;
@@ -70,6 +72,42 @@ public class PacketParser {
 							return split;
 					
 				}
+			}
+		}
+		return null;
+	}
+	
+	public static String [] parseElectionRequest(String message) {
+		String [] split = message.split(" ");
+		if(split.length == 3) {
+			if(split[0].equals("ELECTION_REQUEST")) { 
+				if( isInt(split[1]) )
+					if( isInt(split[2]) )
+						return split;
+			}
+		}
+		return null;
+	}
+	
+	public static String [] parseElectionResponse(String message) {
+		String [] split = message.split(" ");
+		if(split.length == 3) {
+			if(split[0].equals("ELECTION_RESPONSE")) { 
+				if( isInt(split[1]) )
+					if( isInt(split[2]) )
+						return split;
+			}
+		}
+		return null;
+	}
+	
+	public static String [] parseElectionMaster(String message) {
+		String [] split = message.split(" ");
+		if(split.length == 3) {
+			if(split[0].equals("ELECTION_MASTER")) { 
+				if( isInt(split[1]) )
+					if( isInt(split[2]) )
+						return split;
 			}
 		}
 		return null;
