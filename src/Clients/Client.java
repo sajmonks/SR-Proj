@@ -10,7 +10,8 @@ public class Client {
 	private boolean _isAnnounced = false;
 	private boolean _electionResponsed = false;
 	
-	private boolean _requested = true;
+	private boolean _requested = false;
+	private boolean _responsed = false;
 	private int _noResponseNumber = 0;
 	
 	public Client(InetAddress ip, int port) {
@@ -75,5 +76,13 @@ public class Client {
 
 	public void setNoResponseNumber(int _noResponseNumber) {
 		this._noResponseNumber = _noResponseNumber;
+	}
+
+	public boolean isResponsed() {
+		return _responsed;
+	}
+
+	public void setResponsed(boolean _responsed) {
+		this._responsed = _responsed;
 	}
 }

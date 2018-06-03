@@ -32,8 +32,8 @@ public class ParametersGUI extends Frame {
 		
 		serverIPFld = new TextField("localhost", 20);
 		serverPortFld = new TextField("11122", 6);
-		serverRequestWindowFld = new TextField("2.0");
-		serverDeltaRejectFld = new TextField("1");
+		serverRequestWindowFld = new TextField("3000");
+		serverDeltaRejectFld = new TextField("3000");
 		serverRequestWindowToRemoveFld = new TextField("1");
 		clientRequestWindowToElectFld = new TextField("1");
 		
@@ -105,7 +105,7 @@ public class ParametersGUI extends Frame {
 	}
 	
 	public void setAverageTime(String string) {
-		lastOffsetLbl.setText(string);
+		averageLbl.setText(string);
 	}
 
 	public void setSlaveNumber(int number) {
@@ -119,16 +119,16 @@ public class ParametersGUI extends Frame {
 	public float getWindowTime() {
 		float value = 0;
 		try {
-			value = Float.parseFloat(serverRequestWindowFld.getText());
+			value = Float.parseFloat(serverRequestWindowFld.getText()) / 1000.0f;
 		}
 		catch(NumberFormatException e) { value = 0; }
 		return value;
 	}
 	
-	public float getDeltaReject() {
-		float value = 0;
+	public long getDeltaReject() {
+		long value = 0;
 		try {
-			value = Float.parseFloat(serverDeltaRejectFld.getText());
+			value = Long.parseLong(serverDeltaRejectFld.getText());
 		}
 		catch(NumberFormatException e) { value = 0; }
 		return value;

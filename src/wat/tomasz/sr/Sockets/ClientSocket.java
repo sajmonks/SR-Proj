@@ -133,6 +133,11 @@ public class ClientSocket extends Socket {
 			_state = ClientState.Working;
 			System.out.println("Received taking over master by id=" + from);
 		}
+		else if( (args = PacketParser.parseRemoveClient(message)) != null ) {
+			int id = Integer.parseInt(args[1]);
+			_manager.getClientManager().removeClient(id);
+			System.out.println("Received remove client id=" + id);
+		}
 	}
 
 	@Override

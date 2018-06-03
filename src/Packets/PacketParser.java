@@ -27,6 +27,17 @@ public class PacketParser {
 		return null;
 	}
 	
+	public static String [] parseRemoveClient(String message) {
+		String [] split = message.split(" ");
+		if(split.length == 2) {
+			if(split[0].equals("REMOVE_CLIENT")) { 
+				if( isInt(split[1]) )
+						return split;
+			}
+		}
+		return null;
+	}
+	
 	public static String [] parseTimeResponse(String message) {
 		String [] split = message.split(" ");
 		if(split.length == 4) {

@@ -11,6 +11,7 @@ import Clients.Client;
 import Packets.InvitationPacket;
 import Packets.NewClientPacket;
 import Packets.PacketParser;
+import Packets.RemovePacket;
 import Packets.TimePacket;
 import Packets.TimePacket.TimePacketType;
 
@@ -30,7 +31,6 @@ public class ServerSocket extends Socket {
 
 	@Override
 	public void onReceiveData(String message, InetAddress receiver, int port) {
-		System.out.println(message);
 		String [] args = null;
 		if(message.equals("INVITATION_REQUEST") ) {
 			System.out.println("Odebrano zapytanie");
@@ -46,10 +46,11 @@ public class ServerSocket extends Socket {
 			
 			if(requestid != lastRequest)
 				return;
-			
+				
 			//long diff = Calendar.getInstance().getTimeInMillis() - time;
 			Client client = _manager.getClientManager().getClient(clientid);
 			client.setLastOffset(time);
+			client.setResponsed(true);
 			_manager.getClientManager().putClient(clientid, client);
 			System.out.println("Received time from client=" + clientid + " time=" + time);
 		}
@@ -67,49 +68,82 @@ public class ServerSocket extends Socket {
 
 	@Override
 	public void onTimeout() {	
+		broadcastRemovedClients();
 		broadcastTimeCorrection();
 		broadcastTimeRequests();
 		broadcastNewClients();
 		
 	}
 	
+	public void broadcastRemovedClients() {
+		for(int id : _manager.getClientManager().getClientsID()) {
+			Client client = _manager.getClientManager().getClient(id);
+			if(!client.isResponsed()) {
+				client.setNoResponseNumber(client.getNoResponseNumber() + 1);
+				_manager.getClientManager().putClient(id, client);
+			}
+			if(client.getNoResponseNumber() == _manager.getGUI().getTimeoutMaster()) {
+				for(int rid : _manager.getClientManager().getClientsID() ) {
+					Client receiver = _manager.getClientManager().getClient(rid);
+					sendData(new RemovePacket(id), receiver.getIP(), receiver.getPort());
+				}
+				_manager.getClientManager().removeClient(id);
+				System.out.println("Removing client " + id);
+			}
+		}
+	}
+	
 	public void broadcastTimeCorrection() {
 		int divisor = 1;
-		BigDecimal sum = new BigDecimal("" + Calendar.getInstance().getTimeInMillis());
+		long personal = Calendar.getInstance().getTimeInMillis();
+		BigDecimal sum = new BigDecimal("" + personal);
+		//System.out.println("Personal time is " + personal + " compared to big decimal " + sum.toString());
 		
 		for(int id : _manager.getClientManager().getClientsID()) {
 			Client client = _manager.getClientManager().getClient(id);			
-			if(!client.isRequested())	continue;
-			sum.add(new BigDecimal("" + client.getLastOffset()) );
+			if(!client.isRequested() || !client.isResponsed())	continue;
+			
+			long tempAverage = sum.divide(new BigDecimal("" + divisor) ).longValue();
+			long clientTime = client.getLastOffset();
+			long delta = _manager.getGUI().getDeltaReject();
+			
+			if(tempAverage - clientTime > delta || tempAverage - clientTime < delta)
+			{
+				System.out.println("Skipping client " + id + " local time because of big delta");
+				continue;
+			}
+			
+			System.out.println("Client " + id + " time is: " + client.getLastOffset());
+			sum = sum.add(new BigDecimal("" + client.getLastOffset()) );
 			divisor++;
 		}
 		
 		//Calculating average
-		BigDecimal average = sum.divide(sum, divisor);
-		System.out.println("Average time of " + divisor + " clients(plus server) is " + average.toString());
-		_manager.getGUI().setAverageTime(average.toString());
+		//System.out.println("Summaric time is " + sum.toString());
+		long average = sum.divide(new BigDecimal(divisor + "")).longValue();
+		//System.out.println("Average time of " + divisor + " clients(plus server) is " + average);
+		_manager.getGUI().setAverageTime("" + average);
 		
 		for(int id : _manager.getClientManager().getClientsID()) {
 			Client client = _manager.getClientManager().getClient(id);
 			if(!client.isRequested()) continue;
-			long diff = average.subtract(new BigDecimal("" + client.getLastOffset() ) ).longValue();
+			long diff = average - client.getLastOffset();
 			
-			this.sendData(new TimePacket(TimePacketType.TimeCorrection, id, lastRequest++, diff), 
+			this.sendData(new TimePacket(TimePacketType.TimeCorrection, id, lastRequest, diff), 
 					client.getIP(), client.getPort());
 			
-			System.out.print("Sendinf offset " + diff + " to id=" + id);
+			System.out.println("Sending offset " + diff + " to id=" + id);
 		}
-		
-		
-		
 	}
 	
 	public void broadcastTimeRequests() {
+		
+		int request = lastRequest++;
 		for(int id : _manager.getClientManager().getClientsID()) {
 			Client client = _manager.getClientManager().getClient(id);
 			client.setRequested(true);
 			_manager.getClientManager().putClient(id, client); //Update
-			this.sendData(new TimePacket(client, TimePacketType.TimeRequest, id, lastRequest++), 
+			this.sendData(new TimePacket(client, TimePacketType.TimeRequest, id, request), 
 					client.getIP(), client.getPort());
 			
 			
