@@ -53,7 +53,7 @@ public class ServerSocket extends Socket {
 			int requestid = Integer.parseInt(args[2]);
 			long time = Long.parseLong(args[3]);
 			
-				
+			System.out.println(message);
 			//long diff = Calendar.getInstance().getTimeInMillis() - time;
 			Client client = _manager.getClientManager().getClient(clientid);
 			client.setLastOffset(time);

@@ -28,6 +28,7 @@ public class ClientSocket extends Socket {
 	private ClientState _state = ClientState.Starting;
 	private int _id = -1;
 	
+	private boolean _electionRequested = false;
 	private int _attemptsLeft = 0;
 	
 	public ClientSocket(SocketManager manager, String serverip, int port) {
@@ -57,7 +58,7 @@ public class ClientSocket extends Socket {
 			
 			int id = Integer.parseInt(args[1]); //No exception 100%
 			
-			if(id >= 0) return;
+			if(_id >= 0) return;
 			
 			_id = id;
 			
@@ -126,7 +127,7 @@ public class ClientSocket extends Socket {
 				System.out.println("Server is not responding so answering");
 				_state = ClientState.ElectionStarted;
 				sendData(new ElectionPacket(ElectionPacketType.ElectionResponse, from, _id), receiver, port);
-				
+				_electionRequested = true;
 				//Sending broadcast to other with higher ID
 				setTimeout(1f);
 				attemptToBeMaster();
@@ -211,6 +212,7 @@ public class ClientSocket extends Socket {
 			System.out.println("Switch to election started.");
 		}
 		else if(_state == ClientState.ElectionStarted) {
+			System.out.println("Calling this.");
 			int received = 0;
 			for(int id : _manager.getClientManager().getClientsID()) {
 				Client client = _manager.getClientManager().getClient(id);
@@ -218,9 +220,16 @@ public class ClientSocket extends Socket {
 					received++;
 				}
 			}
-			if(received == 0) {
-				attemptToBeMaster();
+			System.out.println("Received " + received);
+			if(received == 0 && _electionRequested == true) {
+				broadcastElectionMaster();
+				_manager.switchToMaster(_port);	
+				_manager.getGUI().setMode("Master");
 			}	
+			else if(received == 0 && _electionRequested == false) {
+				System.out.println("No other clients are connected. Stoping process...");
+				_manager.getGUI().startClientBtn.getActionListeners()[0].actionPerformed(null);
+			}
 			else {
 				_attemptsLeft = _manager.getGUI().getTimeoutSlave();
 				_state = ClientState.ElectionProcess;
