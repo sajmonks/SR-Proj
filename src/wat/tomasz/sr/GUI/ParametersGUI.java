@@ -32,8 +32,8 @@ public class ParametersGUI extends Frame {
 		
 		serverIPFld = new TextField("localhost", 20);
 		serverPortFld = new TextField("11122", 6);
-		serverRequestWindowFld = new TextField("3000");
-		serverDeltaRejectFld = new TextField("3000");
+		serverRequestWindowFld = new TextField("1000");
+		serverDeltaRejectFld = new TextField("10000");
 		serverRequestWindowToRemoveFld = new TextField("1");
 		clientRequestWindowToElectFld = new TextField("1");
 		

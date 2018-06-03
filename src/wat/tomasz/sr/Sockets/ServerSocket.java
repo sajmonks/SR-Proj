@@ -110,9 +110,12 @@ public class ServerSocket extends Socket {
 			
 			long tempAverage = sum.divide(new BigDecimal("" + divisor) ).longValue();
 			long clientTime = client.getLastOffset();
-			long delta = _manager.getGUI().getDeltaReject();
 			
-			if(tempAverage - clientTime > delta || tempAverage - clientTime < delta)
+			long delta = _manager.getGUI().getDeltaReject();
+			long deltaAverage = tempAverage - clientTime;
+			
+			//System.out.println("Delta is " + delta + " delta Average is" + deltaAverage);
+			if(deltaAverage > delta && deltaAverage < delta)
 			{
 				System.out.println("Skipping client " + id + " local time because of big delta");
 				continue;
