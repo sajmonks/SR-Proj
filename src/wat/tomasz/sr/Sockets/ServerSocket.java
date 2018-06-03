@@ -6,6 +6,8 @@ import java.math.RoundingMode;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 import Clients.Client;
@@ -19,6 +21,8 @@ import Packets.TimePacket.TimePacketType;
 public class ServerSocket extends Socket {
 	
 	int lastRequest = 0;
+	
+	private static final DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss yyyy/MM/dd");
 	
 	public ServerSocket(SocketManager manager, int port) {
 		super(manager);
@@ -127,6 +131,7 @@ public class ServerSocket extends Socket {
 			divisor++;
 		}
 		
+		
 		//Calculating average
 		//System.out.println("Summaric time is " + sum.toString());
 		long average = 0;
@@ -136,9 +141,13 @@ public class ServerSocket extends Socket {
 		catch (ArithmeticException e) {
 			e.printStackTrace();
 		}
+		
+		Calendar cal = Calendar.getInstance();
+		cal.setTimeInMillis(average);
+		
 
 		//System.out.println("Average time of " + divisor + " clients(plus server) is " + average);
-		_manager.getGUI().setAverageTime("" + average);
+		_manager.getGUI().setAverageTime("" + average + "(" +  dateFormat.format(cal.getTime() + ")"));
 		
 		for(int id : _manager.getClientManager().getClientsID()) {
 			Client client = _manager.getClientManager().getClient(id);

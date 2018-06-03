@@ -57,7 +57,7 @@ public class ParametersGUI extends Frame {
 		
 		this.setLayout(layout);
 		
-		this.setSize(400, 250);
+		this.setSize(420, 250);
 		
 		//Server IP
 		this.add(new Label("Server IP address:"));
