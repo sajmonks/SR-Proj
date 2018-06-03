@@ -21,6 +21,7 @@ import Packets.TimePacket.TimePacketType;
 public class ServerSocket extends Socket {
 	
 	int lastRequest = 0;
+	long timeStartRequest = 0;
 	
 	private static final DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss ");
 	
@@ -56,11 +57,14 @@ public class ServerSocket extends Socket {
 			
 			if(client.isResponsed() == true) return;
 			
-			client.setLastOffset(time);	
+			long rtt = Calendar.getInstance().getTimeInMillis() - client.getLastTimeRequest();
+			
+			client.setLastOffset(time + rtt);	
 			client.setResponsed(true);
 			client.setNoResponseNumber(0);	
 			_manager.getClientManager().putClient(clientid, client);
 			
+			this.setTimeout( 3.0f -  ( (Calendar.getInstance().getTimeInMillis() - timeStartRequest) / 1000 )  );
 			System.out.println("Received time from client=" + clientid + " time=" + time);
 		}
 	}
@@ -77,8 +81,11 @@ public class ServerSocket extends Socket {
 
 	@Override
 	public void onTimeout() {	
-		broadcastRemovedClients();
+		broadcastRemovedClients();		
 		broadcastTimeCorrection();
+		
+		timeStartRequest = Calendar.getInstance().getTimeInMillis();
+		this.setTimeout(_manager.getGUI().getWindowTime());
 		broadcastTimeRequests();
 		broadcastNewClients();
 		
@@ -181,6 +188,8 @@ public class ServerSocket extends Socket {
 			
 			client.setRequested(true);
 			client.setResponsed(false);
+			client.setLastTimeRequest(Calendar.getInstance().getTimeInMillis());
+			
 			_manager.getClientManager().putClient(id, client); //Update
 			this.sendData(new TimePacket(client, TimePacketType.TimeRequest, id, request), 
 					client.getIP(), client.getPort());
