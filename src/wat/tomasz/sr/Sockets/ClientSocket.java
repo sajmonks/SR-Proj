@@ -83,7 +83,7 @@ public class ClientSocket extends Socket {
 			
 			
 			_manager.getClientManager().putClient(id, new Client(ip, clientport));
-			_manager.getGUI().setSlaveNumber(_manager.getClientManager().getClientCount() + 1);
+			_manager.getGUI().setSlaveNumber(_manager.getClientManager().getClientsID().length + 1);
 			System.out.println("New client joined id=" + id + " ip="+ip.getHostAddress());
 		}
 		else if( (args = PacketParser.parseElectionRequest(message)) != null ) {

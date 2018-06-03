@@ -44,14 +44,14 @@ public class ServerSocket extends Socket {
 			int requestid = Integer.parseInt(args[2]);
 			long time = Long.parseLong(args[3]);
 			
-			if(requestid != lastRequest)
-				return;
 				
 			//long diff = Calendar.getInstance().getTimeInMillis() - time;
 			Client client = _manager.getClientManager().getClient(clientid);
 			client.setLastOffset(time);
 			client.setResponsed(true);
+			client.setNoResponseNumber(0);	
 			_manager.getClientManager().putClient(clientid, client);
+			
 			System.out.println("Received time from client=" + clientid + " time=" + time);
 		}
 	}
@@ -78,10 +78,11 @@ public class ServerSocket extends Socket {
 	public void broadcastRemovedClients() {
 		for(int id : _manager.getClientManager().getClientsID()) {
 			Client client = _manager.getClientManager().getClient(id);
-			if(!client.isResponsed()) {
+			if(client.isRequested() == true && client.isResponsed() == false) {
 				client.setNoResponseNumber(client.getNoResponseNumber() + 1);
 				_manager.getClientManager().putClient(id, client);
 			}
+			System.out.println("client id=" + id + " no response " + client.getNoResponseNumber() + " " + _manager.getGUI().getTimeoutMaster());
 			if(client.getNoResponseNumber() == _manager.getGUI().getTimeoutMaster()) {
 				for(int rid : _manager.getClientManager().getClientsID() ) {
 					Client receiver = _manager.getClientManager().getClient(rid);
@@ -100,8 +101,10 @@ public class ServerSocket extends Socket {
 		//System.out.println("Personal time is " + personal + " compared to big decimal " + sum.toString());
 		
 		for(int id : _manager.getClientManager().getClientsID()) {
+			//System.out.println("Rozpoczecie obslugi id=" + id);
 			Client client = _manager.getClientManager().getClient(id);			
-			if(!client.isRequested() || !client.isResponsed())	continue;
+			if(client.isRequested() == false)  continue;
+			if(client.isResponsed() == false)  continue;
 			
 			long tempAverage = sum.divide(new BigDecimal("" + divisor) ).longValue();
 			long clientTime = client.getLastOffset();
@@ -113,7 +116,7 @@ public class ServerSocket extends Socket {
 				continue;
 			}
 			
-			System.out.println("Client " + id + " time is: " + client.getLastOffset());
+			//System.out.println("Client " + id + " time is: " + client.getLastOffset());
 			sum = sum.add(new BigDecimal("" + client.getLastOffset()) );
 			divisor++;
 		}
@@ -127,6 +130,8 @@ public class ServerSocket extends Socket {
 		for(int id : _manager.getClientManager().getClientsID()) {
 			Client client = _manager.getClientManager().getClient(id);
 			if(!client.isRequested()) continue;
+			
+			//System.out.println("Difference " + average + " " + client.getLastOffset());
 			long diff = average - client.getLastOffset();
 			
 			this.sendData(new TimePacket(TimePacketType.TimeCorrection, id, lastRequest, diff), 
@@ -142,6 +147,7 @@ public class ServerSocket extends Socket {
 		for(int id : _manager.getClientManager().getClientsID()) {
 			Client client = _manager.getClientManager().getClient(id);
 			client.setRequested(true);
+			client.setResponsed(false);
 			_manager.getClientManager().putClient(id, client); //Update
 			this.sendData(new TimePacket(client, TimePacketType.TimeRequest, id, request), 
 					client.getIP(), client.getPort());
