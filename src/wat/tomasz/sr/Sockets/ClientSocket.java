@@ -77,8 +77,10 @@ public class ClientSocket extends Socket {
 			this.sendData(new TimePacket(TimePacketType.TimeResponse, _id, reqid), receiver, port);
 		}
 		else if( (args = PacketParser.parseTimeCorrection(message)) != null ) {
-			//int reqid = Integer.parseInt(args[1]);
+			int id = Integer.parseInt(args[1]);
 			long diff = Long.parseLong(args[3]);
+			
+			if(id != _id) return;
 			
 			Calendar cal = Calendar.getInstance();
 			String time = timeFormat.format(cal.getTime());
@@ -191,7 +193,7 @@ public class ClientSocket extends Socket {
 			setTimeout(_manager.getGUI().getWindowTime());
 			_state = ClientState.ServerNotResponding;
 			//_attemptsLeft = _id + 2;
-			_attemptsLeft = _manager.getGUI().getTimeoutSlave();
+			_attemptsLeft = _manager.getGUI().getTimeoutSlave() + _id;
 			System.out.println("Server is not responding, reconnecting for " + _attemptsLeft + " times.");
 		}
 		else if(_state == ClientState.ServerNotResponding && _attemptsLeft > 0) {

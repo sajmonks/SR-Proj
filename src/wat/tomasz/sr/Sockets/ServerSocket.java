@@ -38,8 +38,6 @@ public class ServerSocket extends Socket {
 	public void onReceiveData(String message, InetAddress receiver, int port) {
 		String [] args = null;
 		if(message.equals("INVITATION_REQUEST") ) {
-			System.out.println("Odebrano zapytanie");
-			
 			int id = _manager.getClientManager().addClient( new Client(receiver, port) );
 			sendData(
 					new InvitationPacket(id), 
@@ -53,10 +51,12 @@ public class ServerSocket extends Socket {
 			int requestid = Integer.parseInt(args[2]);
 			long time = Long.parseLong(args[3]);
 			
-			System.out.println(message);
 			//long diff = Calendar.getInstance().getTimeInMillis() - time;
 			Client client = _manager.getClientManager().getClient(clientid);
-			client.setLastOffset(time);
+			
+			if(client.isResponsed() == true) return;
+			
+			client.setLastOffset(time);	
 			client.setResponsed(true);
 			client.setNoResponseNumber(0);	
 			_manager.getClientManager().putClient(clientid, client);
@@ -135,7 +135,7 @@ public class ServerSocket extends Socket {
 				continue;
 			}
 			
-			//System.out.println("Client " + id + " time is: " + client.getLastOffset());
+			System.out.println("Client " + id + " time is: " + client.getLastOffset());
 			sum = sum.add(new BigDecimal("" + client.getLastOffset()) );
 			divisor++;
 		}
