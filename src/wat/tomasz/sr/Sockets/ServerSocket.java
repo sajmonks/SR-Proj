@@ -115,8 +115,14 @@ public class ServerSocket extends Socket {
 			Client client = _manager.getClientManager().getClient(id);			
 			if(client.isRequested() == false)  continue;
 			if(client.isResponsed() == false)  continue;
+			long tempAverage = 0;
+			try {
+				tempAverage = sum.divide(new BigDecimal("" + divisor), 2, RoundingMode.HALF_UP ).longValue();
+			}
+			catch (ArithmeticException e) {
+				e.printStackTrace();
+			}
 			
-			long tempAverage = sum.divide(new BigDecimal("" + divisor) ).longValue();
 			long clientTime = client.getLastOffset();
 			
 			long delta = _manager.getGUI().getDeltaReject();
@@ -170,6 +176,9 @@ public class ServerSocket extends Socket {
 		int request = lastRequest++;
 		for(int id : _manager.getClientManager().getClientsID()) {
 			Client client = _manager.getClientManager().getClient(id);
+			
+			if(client.isResponsed() == false) continue;
+			
 			client.setRequested(true);
 			client.setResponsed(false);
 			_manager.getClientManager().putClient(id, client); //Update
