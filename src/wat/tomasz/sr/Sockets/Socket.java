@@ -85,6 +85,9 @@ public abstract class Socket {
 	}
 	
 	public void setTimeout(float seconds) {
+		if(_socket == null)
+			return;
+		
 		try {
 			_socket.setSoTimeout(
 					(int) (seconds * 1000)

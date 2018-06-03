@@ -5,10 +5,13 @@ import java.net.InetAddress;
 public class Client {
 	private InetAddress _ip;
 	private int _port = 0;
-	private double _lastOffset = 0;
+	private long _lastOffset = 0;
 	private long _lastTimeRequest = 0;
 	private boolean _isAnnounced = false;
 	private boolean _electionResponsed = false;
+	
+	private boolean _requested = true;
+	private int _noResponseNumber = 0;
 	
 	public Client(InetAddress ip, int port) {
 		_ip = ip;
@@ -27,10 +30,10 @@ public class Client {
 	public void setPort(int _port) {
 		this._port = _port;
 	}
-	public double getLastOffset() {
+	public long getLastOffset() {
 		return _lastOffset;
 	}
-	public void setLastOffset(double _lastOffset) {
+	public void setLastOffset(long _lastOffset) {
 		this._lastOffset = _lastOffset;
 	}
 
@@ -56,5 +59,21 @@ public class Client {
 
 	public void setElectionResponsed(boolean _electioResponsed) {
 		this._electionResponsed = _electioResponsed;
+	}
+
+	public boolean isRequested() {
+		return _requested;
+	}
+
+	public void setRequested(boolean _requested) {
+		this._requested = _requested;
+	}
+
+	public int getNoResponseNumber() {
+		return _noResponseNumber;
+	}
+
+	public void setNoResponseNumber(int _noResponseNumber) {
+		this._noResponseNumber = _noResponseNumber;
 	}
 }

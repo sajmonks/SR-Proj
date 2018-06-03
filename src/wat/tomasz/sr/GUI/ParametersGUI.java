@@ -1,7 +1,6 @@
 package wat.tomasz.sr.GUI;
 
 import java.awt.Button;
-import java.awt.Dialog;
 import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.Label;
@@ -105,8 +104,8 @@ public class ParametersGUI extends Frame {
 		lastOffsetLbl.setText("" + diff);
 	}
 	
-	public void setAverageTime(int average) {
-		lastOffsetLbl.setText("" + average);
+	public void setAverageTime(String string) {
+		lastOffsetLbl.setText(string);
 	}
 
 	public void setSlaveNumber(int number) {

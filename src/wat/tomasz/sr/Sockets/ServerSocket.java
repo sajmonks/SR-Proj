@@ -1,5 +1,7 @@
 package wat.tomasz.sr.Sockets;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
@@ -41,9 +43,15 @@ public class ServerSocket extends Socket {
 			int clientid = Integer.parseInt(args[1]);
 			int requestid = Integer.parseInt(args[2]);
 			long time = Long.parseLong(args[3]);
-			long diff = Calendar.getInstance().getTimeInMillis() - time;
-			System.out.println("Time difference in client " + clientid + " is "  + diff);
-			sendData(new TimePacket(TimePacketType.TimeCorrection, clientid, requestid, diff), receiver, port);
+			
+			if(requestid != lastRequest)
+				return;
+			
+			//long diff = Calendar.getInstance().getTimeInMillis() - time;
+			Client client = _manager.getClientManager().getClient(clientid);
+			client.setLastOffset(time);
+			_manager.getClientManager().putClient(clientid, client);
+			System.out.println("Received time from client=" + clientid + " time=" + time);
 		}
 	}
 
@@ -59,17 +67,53 @@ public class ServerSocket extends Socket {
 
 	@Override
 	public void onTimeout() {	
-		sendTimeRequests();
+		broadcastTimeCorrection();
+		broadcastTimeRequests();
 		broadcastNewClients();
 		
 	}
 	
-	public void sendTimeRequests() {
+	public void broadcastTimeCorrection() {
+		int divisor = 1;
+		BigDecimal sum = new BigDecimal("" + Calendar.getInstance().getTimeInMillis());
+		
+		for(int id : _manager.getClientManager().getClientsID()) {
+			Client client = _manager.getClientManager().getClient(id);			
+			if(!client.isRequested())	continue;
+			sum.add(new BigDecimal("" + client.getLastOffset()) );
+			divisor++;
+		}
+		
+		//Calculating average
+		BigDecimal average = sum.divide(sum, divisor);
+		System.out.println("Average time of " + divisor + " clients(plus server) is " + average.toString());
+		_manager.getGUI().setAverageTime(average.toString());
+		
 		for(int id : _manager.getClientManager().getClientsID()) {
 			Client client = _manager.getClientManager().getClient(id);
-			System.out.println("Sending request to client " + id) ;
+			if(!client.isRequested()) continue;
+			long diff = average.subtract(new BigDecimal("" + client.getLastOffset() ) ).longValue();
+			
+			this.sendData(new TimePacket(TimePacketType.TimeCorrection, id, lastRequest++, diff), 
+					client.getIP(), client.getPort());
+			
+			System.out.print("Sendinf offset " + diff + " to id=" + id);
+		}
+		
+		
+		
+	}
+	
+	public void broadcastTimeRequests() {
+		for(int id : _manager.getClientManager().getClientsID()) {
+			Client client = _manager.getClientManager().getClient(id);
+			client.setRequested(true);
+			_manager.getClientManager().putClient(id, client); //Update
 			this.sendData(new TimePacket(client, TimePacketType.TimeRequest, id, lastRequest++), 
 					client.getIP(), client.getPort());
+			
+			
+			System.out.println("Sending request to client " + id) ;
 		}
 	}
 	

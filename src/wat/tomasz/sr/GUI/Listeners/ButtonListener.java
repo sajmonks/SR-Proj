@@ -1,6 +1,5 @@
 package wat.tomasz.sr.GUI.Listeners;
 
-import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.InetAddress;

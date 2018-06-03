@@ -52,6 +52,7 @@ public class ClientSocket extends Socket {
 			
 			//Setting gui button
 			_manager.getGUI().startClientBtn.setEnabled(true);
+			_manager.getGUI().setSlaveNumber(1);
 			
 			System.out.println("Accept received id=" + _id);
 		}
@@ -82,7 +83,7 @@ public class ClientSocket extends Socket {
 			
 			
 			_manager.getClientManager().putClient(id, new Client(ip, clientport));
-			_manager.getGUI().setSlaveNumber(_manager.getClientManager().getClientCount());
+			_manager.getGUI().setSlaveNumber(_manager.getClientManager().getClientCount() + 1);
 			System.out.println("New client joined id=" + id + " ip="+ip.getHostAddress());
 		}
 		else if( (args = PacketParser.parseElectionRequest(message)) != null ) {
@@ -125,6 +126,8 @@ public class ClientSocket extends Socket {
 			
 			if(id != _id)
 				return;
+			
+			_manager.getGUI().setMode("Slave");
 
 			_manager.getClientManager().removeClient(from);
 			_state = ClientState.Working;
