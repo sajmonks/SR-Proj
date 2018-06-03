@@ -22,7 +22,7 @@ public class ServerSocket extends Socket {
 	
 	int lastRequest = 0;
 	
-	private static final DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss yyyy/MM/dd");
+	private static final DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss ");
 	
 	public ServerSocket(SocketManager manager, int port) {
 		super(manager);
@@ -145,9 +145,8 @@ public class ServerSocket extends Socket {
 		Calendar cal = Calendar.getInstance();
 		cal.setTimeInMillis(average);
 		
-
 		//System.out.println("Average time of " + divisor + " clients(plus server) is " + average);
-		_manager.getGUI().setAverageTime("" + average + "(" +  dateFormat.format(cal.getTime() + ")"));
+		_manager.getGUI().setAverageTime("" + average + "(" +  dateFormat.format(cal.getTime())  + ")");
 		
 		for(int id : _manager.getClientManager().getClientsID()) {
 			Client client = _manager.getClientManager().getClient(id);
