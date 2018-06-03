@@ -64,7 +64,11 @@ public class ServerSocket extends Socket {
 			client.setNoResponseNumber(0);	
 			_manager.getClientManager().putClient(clientid, client);
 			
-			this.setTimeout( 3.0f -  ( (Calendar.getInstance().getTimeInMillis() - timeStartRequest) / 1000 )  );
+			float finalTimeOut = _manager.getGUI().getWindowTime() -  ( (Calendar.getInstance().getTimeInMillis() - timeStartRequest) / 1000.0f );
+			System.out.println("Timeout changed to: " + finalTimeOut);
+			
+			
+			this.setTimeout( finalTimeOut  );
 			System.out.println("Received time from client=" + clientid + " time=" + time);
 		}
 	}
