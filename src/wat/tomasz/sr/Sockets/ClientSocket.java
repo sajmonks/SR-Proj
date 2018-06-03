@@ -33,7 +33,7 @@ public class ClientSocket extends Socket {
 		
 		if(_ip != null) {
 			try {
-				_socket = new DatagramSocket();
+				_socket = new DatagramSocket(port);
 			} catch (SocketException e) {
 				e.printStackTrace();
 			}
@@ -124,6 +124,7 @@ public class ClientSocket extends Socket {
 				return;
 
 			System.out.println("Received taking over master by id=" + from);
+			_state = ClientState.Working;
 		}
 	}
 
@@ -188,6 +189,7 @@ public class ClientSocket extends Socket {
 		if(broadcastElectionRequest() == 0) {
 			if(_manager.getClientManager().getClientsID().length > 0) {
 				broadcastElectionMaster();
+				_manager.switchToMaster(_port);	
 			}
 			else {
 				System.out.println("No other clients are connected. Stoping process...");
@@ -220,6 +222,5 @@ public class ClientSocket extends Socket {
 			sendData(new ElectionPacket(ElectionPacketType.SetMaster, id, _id), 
 					client.getIP(), client.getPort());
 		}
-		//Switching to master here
  	}
 }

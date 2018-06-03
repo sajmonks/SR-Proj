@@ -35,6 +35,11 @@ public class SocketManager {
 		}
 	}
 	
+	public void switchToMaster(int port) {
+		closeSocket();
+		startServer(port);
+	}
+	
 	public void startServer(int port) {
 		setSocket(new ServerSocket(this, port));
 		_socketState = SocketState.Server;
