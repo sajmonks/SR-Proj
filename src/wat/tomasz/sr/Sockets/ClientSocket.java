@@ -123,7 +123,7 @@ public class ClientSocket extends Socket {
 			if(id != _id)
 				return;
 
-			_manager.getClientManager().removeClient(id);
+			_manager.getClientManager().removeClient(from);
 			_state = ClientState.Working;
 			System.out.println("Received taking over master by id=" + from);
 		}
@@ -148,6 +148,7 @@ public class ClientSocket extends Socket {
 			_manager.getGUI().startClientBtn.getActionListeners()[0].actionPerformed(null);
 		} 
 		else if(_state == ClientState.Working) {
+			setTimeout(3f);
 			_state = ClientState.ServerNotResponding;
 			//_attemptsLeft = _id + 2;
 			_attemptsLeft = 1;
@@ -158,7 +159,6 @@ public class ClientSocket extends Socket {
 			System.out.println(_attemptsLeft + " attempts left.");
 		}
 		else if(_state == ClientState.ServerNotResponding && _attemptsLeft <= 0){
-			_state = ClientState.ElectionStarted;
 			System.out.println("Starting election process...");
 			
 			if(_manager.getClientManager().getClientsID().length == 0) {
@@ -168,7 +168,7 @@ public class ClientSocket extends Socket {
 			
 			setTimeout(1f);
 			broadcastElectionRequest();
-			
+			_state = ClientState.ElectionStarted;
 		}
 		else if(_state == ClientState.ElectionStarted) {
 			int received = 0;
