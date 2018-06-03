@@ -208,6 +208,7 @@ public class ClientSocket extends Socket {
 			_state = ClientState.ElectionStarted;
 			setTimeout(1f);
 			broadcastElectionRequest();
+			System.out.println("Switch to election started.");
 		}
 		else if(_state == ClientState.ElectionStarted) {
 			int received = 0;

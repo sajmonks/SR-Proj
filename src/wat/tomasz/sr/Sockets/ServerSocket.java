@@ -39,10 +39,13 @@ public class ServerSocket extends Socket {
 		String [] args = null;
 		if(message.equals("INVITATION_REQUEST") ) {
 			System.out.println("Odebrano zapytanie");
+			
+			int id = _manager.getClientManager().addClient( new Client(receiver, port) );
 			sendData(
-					new InvitationPacket(_manager.getClientManager().addClient( new Client(receiver, port) ) ), 
+					new InvitationPacket(id), 
 					receiver, port);
 			
+			System.out.println("Resending id = " + id);
 			_manager.getGUI().setSlaveNumber(_manager.getClientManager().getClientCount());
 		}
 		else if( (args = PacketParser.parseTimeResponse(message)) != null ) {
