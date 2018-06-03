@@ -20,7 +20,7 @@ public class ParametersGUI extends Frame {
 	public TextField serverIPFld, serverPortFld, serverRequestWindowFld, serverDeltaRejectFld, 
 	serverRequestWindowToRemoveFld, clientRequestWindowToElectFld;
 	
-	public Label modeLbl, lastOffsetLbl, averageLbl, slaveNumberLbl;
+	public Label modeLbl, lastOffsetLbl, averageLbl, slaveNumberLbl, slaveIDLbl;
 	public Button startServerBtn, startClientBtn;
 	
 	private static final long serialVersionUID = 1L;
@@ -48,6 +48,7 @@ public class ParametersGUI extends Frame {
 		lastOffsetLbl = new Label("0");
 		averageLbl = new Label("0");
 		slaveNumberLbl = new Label("0");
+		slaveIDLbl = new Label("");
 		
 		startServerBtn = new Button("Start server");
 		startServerBtn.addActionListener(new ButtonListener(this, ButtonType.SERVER));
@@ -57,7 +58,7 @@ public class ParametersGUI extends Frame {
 		
 		this.setLayout(layout);
 		
-		this.setSize(450, 250);
+		this.setSize(450, 300);
 		
 		//Server IP
 		this.add(new Label("Server IP address:"));
@@ -90,6 +91,9 @@ public class ParametersGUI extends Frame {
 		
 		this.add(new Label("Ilosc slave:"));
 		this.add(slaveNumberLbl);
+		
+		this.add(new Label("ID:"));
+		this.add(slaveIDLbl);
 			
 		//Buttons
 		this.add(startServerBtn);
@@ -121,6 +125,10 @@ public class ParametersGUI extends Frame {
 	
 	public void setMode(String mode) {
 		modeLbl.setText(mode);
+	}
+	
+	public void setSlaveID(String id) {
+		slaveIDLbl.setText(id);
 	}
 	
 	public float getWindowTime() {

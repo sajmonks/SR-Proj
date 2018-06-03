@@ -26,7 +26,7 @@ public class ClientSocket extends Socket {
 	
 	private enum ClientState { Starting, Working, ServerNotResponding, ElectionStarted, ElectionProcess};
 	private ClientState _state = ClientState.Starting;
-	private int _id;
+	private int _id = -1;
 	
 	private int _attemptsLeft = 0;
 	
@@ -56,10 +56,14 @@ public class ClientSocket extends Socket {
 			_state = ClientState.Working;
 			
 			int id = Integer.parseInt(args[1]); //No exception 100%
+			
+			if(id >= 0) return;
+			
 			_id = id;
 			
 			//Setting gui button
 			_manager.getGUI().startClientBtn.setEnabled(true);
+			_manager.getGUI().setSlaveID("" + _id);
 			_manager.getGUI().setSlaveNumber(1);
 			
 			System.out.println("Accept received id=" + _id);
