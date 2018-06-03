@@ -76,15 +76,23 @@ public class ClientSocket extends Socket {
 			long diff = Long.parseLong(args[3]);
 			
 			Calendar cal = Calendar.getInstance();
+			String time = timeFormat.format(cal.getTime());
+			String date = dateFormat.format(cal.getTime());
+			
+			System.out.println("Time before: " + date + " " + time);
+			
 			long timenow = cal.getTimeInMillis();
 			timenow += diff;
 			cal.setTimeInMillis(timenow);
 			
-			System.out.println("Setting system time.");
+			System.out.println("Time after: " + date + " " + time);
+			
+			time = timeFormat.format(cal.getTime());
+			date = dateFormat.format(cal.getTime());
 			
 			try {
-				Runtime.getRuntime().exec("cmd /C date " + dateFormat.format(cal.getTime()));
-				Runtime.getRuntime().exec("cmd /C hour " + timeFormat.format(cal.getTime()));
+				Runtime.getRuntime().exec("cmd /C date " + date);
+				Runtime.getRuntime().exec("cmd /C time " + time);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

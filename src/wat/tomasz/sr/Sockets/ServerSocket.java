@@ -26,7 +26,7 @@ public class ServerSocket extends Socket {
 		} catch (SocketException e) {
 			e.printStackTrace();
 		}
-		this.setTimeout(2.5f);
+		this.setTimeout(_manager.getGUI().getWindowTime());
 	}
 
 	@Override
