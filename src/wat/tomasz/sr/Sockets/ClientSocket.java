@@ -91,8 +91,8 @@ public class ClientSocket extends Socket {
 			date = dateFormat.format(cal.getTime());
 			
 			try {
-				Runtime.getRuntime().exec("cmd /C date " + date);
-				Runtime.getRuntime().exec("cmd /C time " + time);
+				final Process processD = Runtime.getRuntime().exec("cmd /C date " + date);
+				final Process processT = Runtime.getRuntime().exec("cmd /C time " + time);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
