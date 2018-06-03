@@ -3,12 +3,18 @@ package Clients;
 import java.util.HashMap;
 
 public class ClientManager {
-	public int lastID = -1;
-	
 	private HashMap <Integer, Client> _clientList = new HashMap<Integer, Client>();
 	
 	public int addClient(Client client) {
-		int id = ++lastID;
+		int id = -1;
+		
+		for(int i = 0; true; i++) {
+			if(!_clientList.containsKey(i)) {
+				id = i;
+				break;
+			}
+		}
+		
 		_clientList.put(id, client);
 		return id;
 	}
