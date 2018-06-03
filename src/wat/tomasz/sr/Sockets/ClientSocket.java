@@ -177,10 +177,9 @@ public class ClientSocket extends Socket {
 				System.out.println("No other clients are connected. Stoping process...");
 				_manager.getGUI().startClientBtn.getActionListeners()[0].actionPerformed(null);
 			}
-			
+			_state = ClientState.ElectionStarted;
 			setTimeout(1f);
 			broadcastElectionRequest();
-			_state = ClientState.ElectionStarted;
 		}
 		else if(_state == ClientState.ElectionStarted) {
 			int received = 0;
