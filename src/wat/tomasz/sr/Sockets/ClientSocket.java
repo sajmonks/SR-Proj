@@ -85,14 +85,13 @@ public class ClientSocket extends Socket {
 			timenow += diff;
 			cal.setTimeInMillis(timenow);
 			
-			System.out.println("Time after: " + date + " " + time);
-			
 			time = timeFormat.format(cal.getTime());
 			date = dateFormat.format(cal.getTime());
+			System.out.println("Time after: " + date + " " + time);
 			
 			try {
-				final Process processD = Runtime.getRuntime().exec("cmd /C date " + date);
-				final Process processT = Runtime.getRuntime().exec("cmd /C time " + time);
+				Runtime.getRuntime().exec("cmd /C date " + date);
+				Runtime.getRuntime().exec("cmd /C time " + time);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -167,7 +166,7 @@ public class ClientSocket extends Socket {
 		else if( (args = PacketParser.parseRemoveClient(message)) != null ) {
 			int id = Integer.parseInt(args[1]);
 			_manager.getClientManager().removeClient(id);
-			_manager.getGUI().setSlaveNumber(_manager.getClientManager().getClientCount());
+			_manager.getGUI().setSlaveNumber(_manager.getClientManager().getClientCount() + 1);
 			System.out.println("Received remove client id=" + id);
 		}
 	}
