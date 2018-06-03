@@ -5,6 +5,8 @@ import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.Label;
 import java.awt.TextField;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.JOptionPane;
 
@@ -26,6 +28,11 @@ public class ParametersGUI extends Frame {
 	private SocketManager socketManager;
 	
 	public ParametersGUI () {	
+		addWindowListener( new WindowAdapter() {
+			public void windowClosing(WindowEvent we) {
+				System.exit(0);
+			} } );
+		
 		socketManager = new SocketManager(this);
 		
 		GridLayout layout = new GridLayout(0, 2);
