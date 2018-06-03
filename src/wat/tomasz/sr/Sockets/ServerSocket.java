@@ -32,6 +32,7 @@ public class ServerSocket extends Socket {
 		String [] args = null;
 		if(message.equals("INVITATION_REQUEST") ) {
 			System.out.println("Odebrano zapytanie");
+			_manager.getGUI().setSlaveNumber(_manager.getClientManager().getClientCount());
 			sendData(
 					new InvitationPacket(_manager.getClientManager().addClient( new Client(receiver, port) ) ), 
 					receiver, port);

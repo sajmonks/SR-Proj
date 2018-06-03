@@ -66,6 +66,7 @@ public class ClientSocket extends Socket {
 			//int reqid = Integer.parseInt(args[1]);
 			long diff = Long.parseLong(args[3]);
 			System.out.println("Received time correction offset=" + diff);
+			_manager.getGUI().setLastOffset(diff);
 		}
 		else if( (args = PacketParser.parseNewClient(message)) != null ) {
 			//int reqid = Integer.parseInt(args[1]);
@@ -81,6 +82,7 @@ public class ClientSocket extends Socket {
 			
 			
 			_manager.getClientManager().putClient(id, new Client(ip, clientport));
+			_manager.getGUI().setSlaveNumber(_manager.getClientManager().getClientCount());
 			System.out.println("New client joined id=" + id + " ip="+ip.getHostAddress());
 		}
 		else if( (args = PacketParser.parseElectionRequest(message)) != null ) {
@@ -92,6 +94,7 @@ public class ClientSocket extends Socket {
 			
 			System.out.println("Received election request.");
 			if(_state == ClientState.ServerNotResponding) {
+				_manager.getGUI().setMode("Elekcja");
 				System.out.println("Server is not responding so answering");
 				_state = ClientState.ElectionStarted;
 				sendData(new ElectionPacket(ElectionPacketType.ElectionResponse, from, _id), receiver, port);
@@ -136,7 +139,7 @@ public class ClientSocket extends Socket {
 	@Override
 	public void onListenStart() {
 		System.out.println("Setting timeout.");
-		setTimeout(3f);
+		setTimeout(_manager.getGUI().getWindowTime());
 		System.out.println("Sending invitation packet.");
 		this.sendData(new InvitationPacket(InvitationType.Request), _ip, _port);
 	}
@@ -148,10 +151,10 @@ public class ClientSocket extends Socket {
 			_manager.getGUI().startClientBtn.getActionListeners()[0].actionPerformed(null);
 		} 
 		else if(_state == ClientState.Working) {
-			setTimeout(3f);
+			setTimeout(_manager.getGUI().getWindowTime());
 			_state = ClientState.ServerNotResponding;
 			//_attemptsLeft = _id + 2;
-			_attemptsLeft = 1;
+			_attemptsLeft = _manager.getGUI().getTimeoutSlave();
 			System.out.println("Server is not responding, reconnecting for " + _attemptsLeft + " times.");
 		}
 		else if(_state == ClientState.ServerNotResponding && _attemptsLeft > 0) {
@@ -159,9 +162,10 @@ public class ClientSocket extends Socket {
 			System.out.println(_attemptsLeft + " attempts left.");
 		}
 		else if(_state == ClientState.ServerNotResponding && _attemptsLeft <= 0){
+			_manager.getGUI().setMode("Elekcja");
 			System.out.println("Starting election process...");
 			
-			if(_manager.getClientManager().getClientsID().length == 0) {
+			if(_manager.getClientManager().getClientCount() == 0) {
 				System.out.println("No other clients are connected. Stoping process...");
 				_manager.getGUI().startClientBtn.getActionListeners()[0].actionPerformed(null);
 			}
@@ -182,7 +186,7 @@ public class ClientSocket extends Socket {
 				attemptToBeMaster();
 			}	
 			else {
-				_attemptsLeft = 2;
+				_attemptsLeft = _manager.getGUI().getTimeoutSlave();
 				_state = ClientState.ElectionProcess;
 				System.out.println("Received " + received + " responses.");
 			}
@@ -200,6 +204,7 @@ public class ClientSocket extends Socket {
 			if(_manager.getClientManager().getClientsID().length > 0) {
 				broadcastElectionMaster();
 				_manager.switchToMaster(_port);	
+				_manager.getGUI().setMode("Master");
 			}
 			else {
 				System.out.println("No other clients are connected. Stoping process...");

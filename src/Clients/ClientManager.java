@@ -35,4 +35,8 @@ public class ClientManager {
 			_clientList.remove(id);
 		}
 	}
+	
+	public int getClientCount() {
+		return _clientList.size();
+	}
 }
