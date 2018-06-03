@@ -1,9 +1,14 @@
 package wat.tomasz.sr.Sockets;
 
+import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 import Clients.Client;
 import Packets.ElectionPacket;
@@ -15,6 +20,9 @@ import Packets.TimePacket;
 import Packets.TimePacket.TimePacketType;
 
 public class ClientSocket extends Socket {
+	
+	private static final DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+	private static final DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
 	
 	private enum ClientState { Starting, Working, ServerNotResponding, ElectionStarted, ElectionProcess};
 	private ClientState _state = ClientState.Starting;
@@ -66,6 +74,21 @@ public class ClientSocket extends Socket {
 		else if( (args = PacketParser.parseTimeCorrection(message)) != null ) {
 			//int reqid = Integer.parseInt(args[1]);
 			long diff = Long.parseLong(args[3]);
+			
+			Calendar cal = Calendar.getInstance();
+			long timenow = cal.getTimeInMillis();
+			timenow += diff;
+			cal.setTimeInMillis(timenow);
+			
+			System.out.println("Setting system time.");
+			
+			try {
+				Runtime.getRuntime().exec("cmd /C date " + dateFormat.format(cal.getTime()));
+				Runtime.getRuntime().exec("cmd /C hour " + timeFormat.format(cal.getTime()));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
 			System.out.println("Received time correction offset=" + diff);
 			_manager.getGUI().setLastOffset(diff);
 		}
