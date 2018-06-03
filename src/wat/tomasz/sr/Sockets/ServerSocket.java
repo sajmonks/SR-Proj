@@ -177,7 +177,7 @@ public class ServerSocket extends Socket {
 		for(int id : _manager.getClientManager().getClientsID()) {
 			Client client = _manager.getClientManager().getClient(id);
 			
-			if(client.isResponsed() == false) continue;
+			if(client.isRequested() == true && client.isResponsed() == false) continue;
 			
 			client.setRequested(true);
 			client.setResponsed(false);
