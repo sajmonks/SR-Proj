@@ -75,7 +75,8 @@ public class ServerSocket extends Socket {
 	public void broadcastNewClients() {
 		for(int id : _manager.getClientManager().getClientsID()) {
 			Client client = _manager.getClientManager().getClient(id);
-			if(/*!client.isAnnounced()*/ true) {
+			if(!client.isAnnounced()) {
+				//Informing everyone about new joined client
 				for(int sid : _manager.getClientManager().getClientsID()) {
 					Client receiver = _manager.getClientManager().getClient(sid);
 					sendData(new NewClientPacket(id, client.getIP(), client.getPort()), 
@@ -83,6 +84,12 @@ public class ServerSocket extends Socket {
 					
 					client.setAnnounced(true);
 				}
+				//Updating in new joined client
+				for(int sid : _manager.getClientManager().getClientsID()) {
+					Client info = _manager.getClientManager().getClient(sid);
+					sendData(new NewClientPacket(sid, info.getIP(), info.getPort()), 
+							client.getIP(), client.getPort() );
+				}		
 			}
 		}
 	}

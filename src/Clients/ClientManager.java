@@ -29,4 +29,10 @@ public class ClientManager {
 			_clientList.put(id, client);
 		}
 	}
+	
+	public void removeClient(int id) {
+		if(_clientList.containsKey(id)) {
+			_clientList.remove(id);
+		}
+	}
 }

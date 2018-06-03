@@ -16,7 +16,7 @@ import Packets.TimePacket.TimePacketType;
 
 public class ClientSocket extends Socket {
 	
-	private enum ClientState { Starting, Working, ServerNotResponding, ElectionStarted, ElectionProcess };
+	private enum ClientState { Starting, Working, ServerNotResponding, ElectionStarted, ElectionProcess};
 	private ClientState _state = ClientState.Starting;
 	private int _id;
 	
@@ -123,8 +123,9 @@ public class ClientSocket extends Socket {
 			if(id != _id)
 				return;
 
-			System.out.println("Received taking over master by id=" + from);
+			_manager.getClientManager().removeClient(id);
 			_state = ClientState.Working;
+			System.out.println("Received taking over master by id=" + from);
 		}
 	}
 
@@ -148,7 +149,8 @@ public class ClientSocket extends Socket {
 		} 
 		else if(_state == ClientState.Working) {
 			_state = ClientState.ServerNotResponding;
-			_attemptsLeft = _id + 1;
+			//_attemptsLeft = _id + 2;
+			_attemptsLeft = 1;
 			System.out.println("Server is not responding, reconnecting for " + _attemptsLeft + " times.");
 		}
 		else if(_state == ClientState.ServerNotResponding && _attemptsLeft > 0) {
@@ -180,7 +182,15 @@ public class ClientSocket extends Socket {
 				attemptToBeMaster();
 			}	
 			else {
+				_attemptsLeft = 2;
+				_state = ClientState.ElectionProcess;
 				System.out.println("Received " + received + " responses.");
+			}
+		}
+		else if(_state == ClientState.ElectionProcess) {
+			_attemptsLeft--;
+			if(_attemptsLeft == 0) {
+				attemptToBeMaster();
 			}
 		}
 	}
