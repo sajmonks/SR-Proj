@@ -90,6 +90,7 @@ public class ServerSocket extends Socket {
 					sendData(new RemovePacket(id), receiver.getIP(), receiver.getPort());
 				}
 				_manager.getClientManager().removeClient(id);
+				_manager.getGUI().setSlaveNumber(_manager.getClientManager().getClientCount());
 				System.out.println("Removing client " + id);
 			}
 		}

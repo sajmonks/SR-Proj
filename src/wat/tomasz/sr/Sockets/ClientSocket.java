@@ -136,6 +136,7 @@ public class ClientSocket extends Socket {
 		else if( (args = PacketParser.parseRemoveClient(message)) != null ) {
 			int id = Integer.parseInt(args[1]);
 			_manager.getClientManager().removeClient(id);
+			_manager.getGUI().setSlaveNumber(_manager.getClientManager().getClientCount());
 			System.out.println("Received remove client id=" + id);
 		}
 	}
