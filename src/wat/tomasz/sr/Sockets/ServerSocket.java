@@ -58,6 +58,7 @@ public class ServerSocket extends Socket {
 			if(client.isResponsed() == true) return;
 			
 			long rtt = Calendar.getInstance().getTimeInMillis() - client.getLastTimeRequest();
+			System.out.println("Rtt is " + rtt);
 			
 			client.setLastOffset(time + rtt);	
 			client.setResponsed(true);
