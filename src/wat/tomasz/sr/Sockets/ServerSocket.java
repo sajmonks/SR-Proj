@@ -2,6 +2,7 @@ package wat.tomasz.sr.Sockets;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
@@ -128,7 +129,14 @@ public class ServerSocket extends Socket {
 		
 		//Calculating average
 		//System.out.println("Summaric time is " + sum.toString());
-		long average = sum.divide(new BigDecimal(divisor + "")).longValue();
+		long average = 0;
+		try {
+			average = sum.divide(new BigDecimal(divisor + ""), 2, RoundingMode.HALF_UP).longValue();
+		}
+		catch (ArithmeticException e) {
+			e.printStackTrace();
+		}
+
 		//System.out.println("Average time of " + divisor + " clients(plus server) is " + average);
 		_manager.getGUI().setAverageTime("" + average);
 		
