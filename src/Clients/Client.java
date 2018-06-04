@@ -7,6 +7,7 @@ public class Client {
 	private int _port = 0;
 	private long _lastOffset = 0;
 	private long _lastTimeRequest = 0;
+	private long _lastTimeRecived = 0;
 	private boolean _isAnnounced = false;
 	private boolean _electionResponsed = false;
 	
@@ -84,5 +85,13 @@ public class Client {
 
 	public void setResponsed(boolean _responsed) {
 		this._responsed = _responsed;
+	}
+
+	public long getLastTimeRecived() {
+		return _lastTimeRecived;
+	}
+
+	public void setLastTimeRecived(long _lastTimeRecived) {
+		this._lastTimeRecived = _lastTimeRecived;
 	}
 }

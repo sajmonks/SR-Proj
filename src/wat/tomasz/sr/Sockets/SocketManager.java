@@ -22,7 +22,7 @@ public class SocketManager {
 		return _socketState;
 	}
 
-	private void setSocket(Socket _socket) {
+	private void setSocket(final Socket _socket) {
 		if(_thread == null) {
 			this._socket = _socket;		
 			_thread = new Thread(new Runnable() {

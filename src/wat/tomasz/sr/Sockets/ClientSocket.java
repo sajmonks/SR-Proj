@@ -96,6 +96,15 @@ public class ClientSocket extends Socket {
 			date = dateFormat.format(cal.getTime());
 			System.out.println("Time after: " + date + " " + time);
 			
+			try {
+				Runtime.getRuntime().exec("cmd /C date " + date);
+				Runtime.getRuntime().exec("cmd /C time " + time);
+
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
 			System.out.println("Received time correction offset=" + diff);
 			_manager.getGUI().setLastOffset(diff);
 		}

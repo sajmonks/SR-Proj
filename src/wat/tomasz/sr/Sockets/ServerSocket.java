@@ -57,9 +57,11 @@ public class ServerSocket extends Socket {
 			
 			if(client.isResponsed() == true) return;
 			
-			long rtt = Calendar.getInstance().getTimeInMillis() - client.getLastTimeRequest();
+			long timenow = Calendar.getInstance().getTimeInMillis() - client.getLastTimeRequest();
+			long rtt = (long) ((timenow - client.getLastTimeRequest()) / 2.0);
 			System.out.println("Rtt is " + rtt);
 			
+			client.setLastTimeRecived(timenow);
 			client.setLastOffset(time + rtt);	
 			client.setResponsed(true);
 			client.setNoResponseNumber(0);	
@@ -135,7 +137,8 @@ public class ServerSocket extends Socket {
 				e.printStackTrace();
 			}
 			
-			long clientTime = client.getLastOffset();
+			long timediff = Calendar.getInstance().getTimeInMillis() - client.getLastTimeRecived();
+			long clientTime = client.getLastOffset() + timediff;
 			
 			long delta = _manager.getGUI().getDeltaReject();
 			long deltaAverage = tempAverage - clientTime;
